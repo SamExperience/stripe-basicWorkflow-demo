@@ -4,6 +4,8 @@ import Layout from "./components/Layout";
 import ProtectedRoute from "./components/ProtectedRoute";
 import Auth from "./pages/Auth";
 import Home from "./pages/Home";
+import Success from "./pages/Success";
+import Cancel from "./pages/Cancel";
 
 function App() {
   const { user, loading } = useAuth();
@@ -19,6 +21,8 @@ function App() {
       <Route element={<ProtectedRoute />}>
         <Route element={<Layout />}>
           <Route path="/" element={<Home />} />
+          <Route path="/success" element={<Success />} />
+          <Route path="/cancel" element={<Cancel />} />
         </Route>
       </Route>
       <Route path="*" element={<Navigate to="/" replace />} />
