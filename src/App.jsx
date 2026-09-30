@@ -1,25 +1,28 @@
-import { signOut } from "firebase/auth";
-import { auth } from "./services/firebase";
+import { Navigate, Route, Routes } from "react-router-dom";
 import { useAuth } from "./context/AuthContext";
+import Layout from "./components/Layout";
+import ProtectedRoute from "./components/ProtectedRoute";
 import Auth from "./pages/Auth";
+import Home from "./pages/Home";
 
 function App() {
   const { user, loading } = useAuth();
 
   if (loading) return null;
-  if (!user) return <Auth />;
 
   return (
-    <main className="mx-auto max-w-3xl px-6 py-16">
-      <h1 className="text-3xl font-semibold tracking-tight">Stripe Demo</h1>
-      <p className="mt-2 text-sm text-zinc-400">Signed in as {user.email}</p>
-      <button
-        onClick={() => signOut(auth)}
-        className="mt-6 text-sm text-zinc-400 hover:text-zinc-200"
-      >
-        Sign out
-      </button>
-    </main>
+    <Routes>
+      <Route
+        path="/login"
+        element={user ? <Navigate to="/" replace /> : <Auth />}
+      />
+      <Route element={<ProtectedRoute />}>
+        <Route element={<Layout />}>
+          <Route path="/" element={<Home />} />
+        </Route>
+      </Route>
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
   );
 }
 
