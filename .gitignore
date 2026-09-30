@@ -40,3 +40,6 @@ functions/.env.*
 
 #stripe
 functions/.secret.*
+
+# Personal notes
+stripe-disputes-notes.md
