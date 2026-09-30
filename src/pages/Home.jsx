@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { httpsCallable } from "firebase/functions";
 import { functions } from "../services/firebase";
+import { usePlan } from "../hooks/usePlan";
 
 // Display only: the real price is always decided by the server (PLANS in functions/index.js)
 const PLANS = [
@@ -31,6 +32,7 @@ const PLANS = [
 const createCheckout = httpsCallable(functions, "createCheckout");
 
 export default function Home() {
+  const currentPlan = usePlan();
   const [loadingPlan, setLoadingPlan] = useState(null);
   const [error, setError] = useState("");
 
@@ -76,12 +78,16 @@ export default function Home() {
               ))}
             </ul>
 
-            {plan.id === "free" ? (
+            {plan.id === currentPlan ? (
+              <p className="mt-8 text-sm font-medium text-emerald-400">
+                Current plan
+              </p>
+            ) : plan.id === "free" ? (
               <p className="mt-8 text-sm text-zinc-500">Included</p>
             ) : (
               <button
                 onClick={() => handleSubscribe(plan.id)}
-                disabled={loadingPlan !== null}
+                disabled={loadingPlan !== null || currentPlan !== "free"}
                 className="mt-8 rounded-lg bg-zinc-100 px-3 py-2 text-sm font-medium text-zinc-900 transition hover:bg-white disabled:opacity-50"
               >
                 {loadingPlan === plan.id ? "Redirecting..." : "Subscribe"}
