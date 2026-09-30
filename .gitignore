@@ -36,3 +36,7 @@ functions/.runtimeconfig.json
 functions/.env
 functions/.env.*
 !functions/.env.example
+
+
+#stripe
+functions/.secret.*
