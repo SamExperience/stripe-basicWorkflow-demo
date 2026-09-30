@@ -12,10 +12,13 @@
     "emulators:data": "firebase emulators:start --import=.emulator-data --export-on-exit"
   },
   "dependencies": {
+    "@tailwindcss/vite": "^4.3.3",
     "firebase": "^12.19.0",
     "firebase-tools": "^15.32.0",
     "react": "19.2.8",
-    "react-dom": "19.2.8"
+    "react-dom": "19.2.8",
+    "react-router-dom": "^7.18.4",
+    "tailwindcss": "^4.3.3"
   },
   "devDependencies": {
     "@types/react": "19.2.18",
