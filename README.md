@@ -20,12 +20,14 @@ A React + Vite starter project for building a basic Stripe payment workflow. Thi
    npm install
    ```
 
-2. Start the dev server:
+2. Configure environment variables (Firebase config): copy `.env.example` to `.env.local` and fill in the values.
+
+3. Start the dev server:
    ```bash
    npm run dev
    ```
 
-3. Open your browser and navigate to the URL shown in the terminal (typically `http://localhost:5173`).
+4. Open your browser and navigate to the URL shown in the terminal (typically `http://localhost:5173`).
 
 ## Available Scripts
 
