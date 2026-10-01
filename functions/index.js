@@ -7,12 +7,13 @@ import { getFirestore, FieldValue } from "firebase-admin/firestore";
 initializeApp();
 const db = getFirestore();
 
-const stripeSecret = defineSecret("STRIPE_SECRET_KEY");
+const stripeSecret = ""; // this is not freedefineSecret("STRIPE_SECRET_KEY");
 const stripeWebhookSecret = defineSecret("STRIPE_WEBHOOK_SECRET");
 
+// Prices live in the Stripe dashboard; lookup keys let us change them without touching the code
 const PLANS = {
-  monthly: { name: "Monthly plan", amount: 1500, interval: "month" },
-  annual: { name: "Annual plan", amount: 14000, interval: "year" },
+  monthly: { lookupKey: "pro_monthly" },
+  annual: { lookupKey: "pro_annual" },
 };
 
 const CLIENT_URL = "http://localhost:5173"; // porta di Vite, cambiala se diversa
@@ -20,6 +21,7 @@ const CLIENT_URL = "http://localhost:5173"; // porta di Vite, cambiala se divers
 // Stripe webhook: the only place allowed to grant a plan to a user
 export const stripeWebhook = onRequest(
   { secrets: [stripeSecret, stripeWebhookSecret] },
+  { cors: true },
   async (req, res) => {
     if (req.method !== "POST") {
       res.status(405).send("Method not allowed");
@@ -75,22 +77,25 @@ export const createCheckout = onCall(
     if (!selectedPlan)
       throw new HttpsError("invalid-argument", "Invalid plan subscription");
 
-    try {
-      const stripe = new Stripe(stripeSecret.value());
+    const stripe = new Stripe(stripeSecret.value());
 
+    const { data: prices } = await stripe.prices.list({
+      lookup_keys: [selectedPlan.lookupKey],
+      active: true,
+      limit: 1,
+    });
+    if (prices.length === 0) {
+      console.error(
+        `No active Stripe price for lookup key "${selectedPlan.lookupKey}"`,
+      );
+      throw new HttpsError("failed-precondition", "Plan is not available");
+    }
+
+    try {
       const session = await stripe.checkout.sessions.create({
         mode: "subscription",
-        line_items: [
-          {
-            quantity: 1,
-            price_data: {
-              currency: "chf",
-              unit_amount: selectedPlan.amount,
-              recurring: { interval: selectedPlan.interval },
-              product_data: { name: selectedPlan.name },
-            },
-          },
-        ],
+        allow_promotion_codes: true,
+        line_items: [{ price: prices[0].id, quantity: 1 }],
         success_url: `${CLIENT_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
         cancel_url: `${CLIENT_URL}/cancel`,
         client_reference_id: req.auth.uid,
